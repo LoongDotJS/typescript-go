@@ -1,0 +1,88 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: 'dev.20250925.1'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@loongdotjs'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.25.0'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Set Environment Variables
+        run: |
+          VERSION=${{ github.event.inputs.version }}
+          if [ -z "$VERSION" ]; then
+            echo "Error: Version is required but not provided"
+            exit 1
+          fi
+          echo "Using version: $VERSION"
+          echo "TSGO_HEREBY_SET_PRERELEASE=${VERSION#v}" >> $GITHUB_ENV
+          echo "TSGO_HEREBY_FOR_RELEASE=true" >> $GITHUB_ENV
+
+      - name: Build Packages
+        run: |
+          if [ "${{ env.TSGO_HEREBY_FOR_RELEASE }}" = "true" ]; then
+            npx hereby native-preview:build-packages --forRelease --setPrerelease "${{ env.TSGO_HEREBY_SET_PRERELEASE }}"
+          else
+            npx hereby native-preview:build-packages
+          fi
+
+      - name: Pack Packages
+        run: |
+          if [ "${{ env.TSGO_HEREBY_FOR_RELEASE }}" = "true" ]; then
+            npx hereby native-preview:pack-packages --forRelease --setPrerelease "${{ env.TSGO_HEREBY_SET_PRERELEASE }}"
+          else
+            npx hereby native-preview:pack-packages
+          fi
+
+      - name: Publish to NPM
+        run: |
+          cd built/npm
+
+          if [ -f publish-order.txt ]; then
+            echo "Publishing packages in order:"
+            cat publish-order.txt
+
+            while IFS= read -r package; do
+              echo "Publishing $package..."
+              npm publish "$package" --access public
+            done < publish-order.txt
+          else
+            echo "No publish-order.txt found, publishing all .tgz files"
+            for package in *.tgz; do
+              echo "Publishing $package..."
+              npm publish "$package" --access public
+            done
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
