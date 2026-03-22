@@ -9,7 +9,7 @@ export default function getExePath() {
 
     let exeDir;
 
-    const expectedPackage = "native-preview-" + process.platform + "-" + process.arch;
+    const expectedPackage = "typescript-native-preview-" + process.platform + "-" + process.arch;
 
     if (normalizedDirname.endsWith("/_packages/native-preview/lib")) {
         // We're running directly from source in the repo.
@@ -21,7 +21,7 @@ export default function getExePath() {
     }
     else {
         // We're actually running from an installed package.
-        const platformPackageName = "@typescript/" + expectedPackage;
+        const platformPackageName = "@loongdotjs/" + expectedPackage;
         try {
             if (typeof import.meta.resolve === "undefined") {
                 // v16.20.1

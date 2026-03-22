@@ -1346,14 +1346,14 @@ function cpWithoutNodeModulesOrTsconfig(src, dest) {
 }
 
 const mainNativePreviewPackage = {
-    npmPackageName: "@typescript/native-preview",
+    npmPackageName: "@loongdotjs/typescript-native-preview",
     npmDir: path.join(builtNpm, "native-preview"),
     npmTarball: path.join(builtNpm, "native-preview.tgz"),
 };
 
 /**
  * @typedef {"win32" | "linux" | "darwin"} OS
- * @typedef {"x64" | "arm" | "arm64"} Arch
+ * @typedef {"x64" | "arm" | "arm64" | "ppc64" | "riscv64" | "loong64"} Arch
  * @typedef {"Microsoft400" | "LinuxSign" | "MacDeveloperHarden" | "8020" | "VSCodePublisher"} Cert
  * @typedef {`${OS | "alpine"}-${Exclude<Arch, "arm"> | "armhf"}`} VSCodeTarget
  */
@@ -1367,6 +1367,9 @@ const nativePreviewPlatforms = memoize(() => {
         ["linux", "x64", "LinuxSign", true],
         ["linux", "arm", "LinuxSign"],
         ["linux", "arm64", "LinuxSign", true],
+        ["linux", "ppc64", "LinuxSign"],
+        ["linux", "riscv64", "LinuxSign"],
+        ["linux", "loong64", "LinuxSign"],
         ["darwin", "x64", "MacDeveloperHarden"],
         ["darwin", "arm64", "MacDeveloperHarden"],
         // Wasm?
@@ -1378,10 +1381,10 @@ const nativePreviewPlatforms = memoize(() => {
     }
 
     return supportedPlatforms.map(([os, arch, cert, alpine]) => {
-        const npmDirName = `native-preview-${os}-${arch}`;
+        const npmDirName = `typescript-native-preview-${os}-${arch}`;
         const npmDir = path.join(builtNpm, npmDirName);
         const npmTarball = `${npmDir}.tgz`;
-        const npmPackageName = `@typescript/${npmDirName}`;
+        const npmPackageName = `@loongdotjs/${npmDirName}`;
 
         /** @type {VSCodeTarget[]} */
         const vscodeTargets = [`${os}-${arch === "arm" ? "armhf" : arch}`];
@@ -1436,7 +1439,7 @@ const nativePreviewPlatforms = memoize(() => {
 
     /**
      * @param {string} arch
-     * @returns {"amd64" | "arm" | "arm64"}
+     * @returns {"amd64" | "arm" | "arm64" | "ppc64le" | "riscv64" | "loong64"}
      */
     function nodeToGOARCH(arch) {
         switch (arch) {
@@ -1446,6 +1449,12 @@ const nativePreviewPlatforms = memoize(() => {
                 return "arm";
             case "arm64":
                 return "arm64";
+            case "ppc64":
+                return "ppc64le";
+            case "riscv64":
+                return "riscv64";
+            case "loong64":
+                return "loong64";
             default:
                 throw new Error(`Unsupported ARCH: ${arch}`);
         }
