@@ -731,7 +731,7 @@ async function runTestTools() {
 }
 
 async function runTestAPI() {
-    await $`npm run -w @typescript/native-preview test:only`;
+    await $`npm run -w @loongdotjs/typescript-native-preview test:only`;
 }
 
 export const testTools = task({
@@ -742,23 +742,23 @@ export const testTools = task({
 
 export const buildAPI = task({
     name: "build:api",
-    description: "Builds @typescript/native-preview JS API.",
+    description: "Builds @loongdotjs/typescript-native-preview JS API.",
     run: async () => {
-        await $`npm run -w @typescript/native-preview build`;
+        await $`npm run -w @loongdotjs/typescript-native-preview build`;
     },
 });
 
 export const buildAPITests = task({
     name: "build:api:test",
-    description: "Builds the @typescript/native-preview JS API tests.",
+    description: "Builds the @loongdotjs/typescript-native-preview JS API tests.",
     run: async () => {
-        await $`npm run -w @typescript/native-preview build:test`;
+        await $`npm run -w @loongdotjs/typescript-native-preview build:test`;
     },
 });
 
 export const testAPI = task({
     name: "test:api",
-    description: "Runs the @typescript/native-preview JS API tests.",
+    description: "Runs the @loongdotjs/typescript-native-preview JS API tests.",
     dependencies: [tsgo, buildAPITests],
     run: runTestAPI,
 });
@@ -1389,14 +1389,14 @@ function cpWithoutNodeModulesOrTsconfig(src, dest) {
 }
 
 const mainNativePreviewPackage = {
-    npmPackageName: "@typescript/native-preview",
+    npmPackageName: "@loongdotjs/typescript-native-preview",
     npmDir: path.join(builtNpm, "native-preview"),
     npmTarball: path.join(builtNpm, "native-preview.tgz"),
 };
 
 /**
  * @typedef {"win32" | "linux" | "darwin"} OS
- * @typedef {"x64" | "arm" | "arm64"} Arch
+ * @typedef {"x64" | "arm" | "arm64" | "ppc64" | "riscv64" | "loong64"} Arch
  * @typedef {"Microsoft400" | "LinuxSign" | "MacDeveloperHarden" | "8020" | "VSCodePublisher"} Cert
  * @typedef {`${OS | "alpine"}-${Exclude<Arch, "arm"> | "armhf"}`} VSCodeTarget
  */
@@ -1410,6 +1410,9 @@ const nativePreviewPlatforms = memoize(() => {
         ["linux", "x64", "LinuxSign", true],
         ["linux", "arm", "LinuxSign"],
         ["linux", "arm64", "LinuxSign", true],
+        ["linux", "ppc64", "LinuxSign"],
+        ["linux", "riscv64", "LinuxSign"],
+        ["linux", "loong64", "LinuxSign"],
         ["darwin", "x64", "MacDeveloperHarden"],
         ["darwin", "arm64", "MacDeveloperHarden"],
         // Wasm?
@@ -1421,10 +1424,10 @@ const nativePreviewPlatforms = memoize(() => {
     }
 
     return supportedPlatforms.map(([os, arch, cert, alpine]) => {
-        const npmDirName = `native-preview-${os}-${arch}`;
+        const npmDirName = `typescript-native-preview-${os}-${arch}`;
         const npmDir = path.join(builtNpm, npmDirName);
         const npmTarball = `${npmDir}.tgz`;
-        const npmPackageName = `@typescript/${npmDirName}`;
+        const npmPackageName = `@loongdotjs/${npmDirName}`;
 
         /** @type {VSCodeTarget[]} */
         const vscodeTargets = [`${os}-${arch === "arm" ? "armhf" : arch}`];
@@ -1479,7 +1482,7 @@ const nativePreviewPlatforms = memoize(() => {
 
     /**
      * @param {string} arch
-     * @returns {"amd64" | "arm" | "arm64"}
+     * @returns {"amd64" | "arm" | "arm64" | "ppc64le" | "riscv64" | "loong64"}
      */
     function nodeToGOARCH(arch) {
         switch (arch) {
@@ -1489,6 +1492,12 @@ const nativePreviewPlatforms = memoize(() => {
                 return "arm";
             case "arm64":
                 return "arm64";
+            case "ppc64":
+                return "ppc64le";
+            case "riscv64":
+                return "riscv64";
+            case "loong64":
+                return "loong64";
             default:
                 throw new Error(`Unsupported ARCH: ${arch}`);
         }
@@ -1569,7 +1578,7 @@ async function runBuildNativePreviewPackages() {
     // No NOTICE.txt here; does not ship the binary or libs. If this changes, we should add it.
 
     // Build JS API and copy dist into the package.
-    await $`npm run -w @typescript/native-preview build`;
+    await $`npm run -w @loongdotjs/typescript-native-preview build`;
     await cpRecursive(path.join(inputDir, "dist"), path.join(mainPackageDir, "dist"));
 
     // Validate that .d.ts files contain no external imports (all imports must start with "." or "#").

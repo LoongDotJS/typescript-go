@@ -2,8 +2,8 @@ import type {
     Path,
     SourceFile,
     Statement,
-} from "@typescript/native-preview/unstable/ast";
-import { SyntaxKind } from "@typescript/native-preview/unstable/ast";
+} from "@loongdotjs/typescript-native-preview/unstable/ast";
+import { SyntaxKind } from "@loongdotjs/typescript-native-preview/unstable/ast";
 import {
     createBlock,
     createExpressionStatement,
@@ -21,7 +21,7 @@ import {
     createVariableDeclaration,
     createVariableDeclarationList,
     createVariableStatement,
-} from "@typescript/native-preview/unstable/ast/factory";
+} from "@loongdotjs/typescript-native-preview/unstable/ast/factory";
 import assert from "node:assert";
 import {
     describe,

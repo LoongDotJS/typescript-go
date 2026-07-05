@@ -4,10 +4,10 @@
 
 ## Preview
 
-A preview build is available on npm as [`@typescript/native-preview`](https://www.npmjs.com/package/@typescript/native-preview).
+A preview build is available on npm as [`@loongdotjs/typescript-native-preview`](https://www.npmjs.com/package/@loongdotjs/typescript-native-preview).
 
 ```sh
-npm install @typescript/native-preview
+npm install @loongdotjs/typescript-native-preview
 npx tsgo # Use this as you would tsc.
 ```
 

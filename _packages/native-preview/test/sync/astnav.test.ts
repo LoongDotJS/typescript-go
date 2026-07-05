@@ -12,13 +12,13 @@ import {
     formatSyntaxKind,
     getTokenAtPosition,
     getTouchingPropertyName,
-} from "@typescript/native-preview/unstable/ast";
+} from "@loongdotjs/typescript-native-preview/unstable/ast";
 import type {
     Node,
     SourceFile,
-} from "@typescript/native-preview/unstable/ast";
-import { createVirtualFileSystem } from "@typescript/native-preview/unstable/fs";
-import { API } from "@typescript/native-preview/unstable/sync";
+} from "@loongdotjs/typescript-native-preview/unstable/ast";
+import { createVirtualFileSystem } from "@loongdotjs/typescript-native-preview/unstable/fs";
+import { API } from "@loongdotjs/typescript-native-preview/unstable/sync";
 import assert from "node:assert";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
